@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb  4 10:05:49 2020
+
+@author: kelleclark
+"""
+
+import os
+
+
+# enumerate ngrams
+def ngrams(input, n):
+    # split delimiter is space
+    input = input.split(' ')
+    # create an empty dictionary
+    output = {}
+    
+    for i in range(len(input) - n + 1):
+        # generate an ngram
+        g = ' '.join(input[i:i+n])
+        # set output[key] = 0, if key is not already in dictionary; otherwise, no effect
+        output.setdefault(g, 0)
+        # increment the ngram count
+        output[g] += 1
+    
+    # return the dictionary of ngrams (includes frequency of occurrence)
+    return output
+
+#create corpus from all .txt files in the folder with the passed in path 
+def oneCorpusFromFiles(folderpath):
+    textfiles = [f for f in os.listdir(folderpath) if '.txt' in f]
+    #corpus=[]
+    corpus = ' '
+    for f in textfiles:
+        substring = ' '
+        with open(folderpath + '/'+ f) as filetext:
+            #corpus.append(file.read())
+           substring = substring.join(line.strip() for line in filetext)
+        filetext.close()
+        corpus = corpus + substring
+    return corpus
+
+corp = oneCorpusFromFiles('Test Data/long test data')
+print(corp)
+onegram = ngrams(corp, 1)
+print(onegram)
+twogram = ngrams(corp, 2)
+print(twogram)
+threegram = ngrams(corp, 3)
+print(threegram)
