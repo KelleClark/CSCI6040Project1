@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb  4 10:05:49 2020
+
+@author: kelleclark
+"""
+
+import os
+import re
+import string
+import numpy
+import matplotlib
+import sys
+import nltk
+from nltk.data import *
+from nltk.book import *
+from nltk.tokenize import word_tokenize, sent_tokenize
+
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+ 
+#from keras.models import Sequential
+#from keras.layers import Dense, Dropout, LSTM
+#from keras.utils import np_utils
+#from keras.callbacks import ModelCheckpoint
+
+# enumerate ngrams from Eisentein and CSCI6040 ipynb
+def ngrams(instring, n):
+    outset = {}
+    for i in range(len(instring) - n + 1):
+        g = ' '.join(instring[i:i+n])
+        outset.setdefault(g, 0)
+        outset[g] += 1
+    return outset
+
+def ngramModel(instring, n):
+   outset = tokenize_words(instring)
+   totalpossible = len(outset)
+   print (outset)
+   anoutcome = ngrams(outset,n)
+   print(anoutcome)
+   probmodel = anoutcome
+   for keyword in anoutcome:
+        print(f"the word is {keyword} and it occurs {probmodel[keyword]} times")
+        probmodel[keyword] = (probmodel[keyword] / totalpossible)
+   print(probmodel)
+   return probmodel
+ 
+def oneCorpusFromFiles(folderpath):
+    textfiles = [f for f in os.listdir(folderpath) if '.txt' in f]
+    corpus = ' '
+    for f in textfiles:
+        try:
+            substring = ' '
+            with open(folderpath + '/'+ f) as filetext:
+                print(f"the language of file "+f+" is {nltk.language(filetext)}")
+                substring = substring.join(line.strip() for line in filetext)
+                filetext.close()
+                corpus = corpus + substring
+        except:
+            print("Error reading file:" + f)
+    return corpus
+        
+
+def tokenize_words(instring):
+    # lowercase and remove punctuation to standardize it
+    tokens = word_tokenize(instring)
+    tokens = [w.lower() for w in tokens]
+    #creating a regular expression for matching
+    re_punc = re.compile('[%s]' % re.escape(string.punctuation))
+    punct_free_words = [re_punc.sub('', w) for w in tokens]
+    words = [word for word in punct_free_words if word.isalpha()]
+    print(f"\n NLTK identified tokenized {len(words)} words.")
+
+    # instantiate the tokenizer to recognize words
+#    tokenizer = RegexpTokenizer(r'\w+')
+#    tokens = tokenizer.tokenize(instring)
+
+    # if the created token isn't in the stopwords of nltk, make it part of "filtered"
+    #filtered = filter(lambda token: token not in stopwords.words('english'), tokens)
+    #return " ".join(filtered)
+    return words
+
+
+def printoutcorpus(instring,folderpath):
+    try:
+        if len(instring) > 500: 
+            print(folderpath + "\n   First & last 50 characters of Corpus:\n" + instring[:50]+ " . . . "+ instring[-50:])
+        elif (len(instring) > 0):
+            print(folderpath+f"\n {instring[:]}")
+        else:
+            print(folderpath + "\n   Corpus is under 100 characters:\n'{corpus}'")
+    except:
+        print("The corpus does not exist.")
+
+
+#main 
+pathname = 'Test Data/short test data'
+corp = oneCorpusFromFiles(pathname)
+#printoutcorpus(corp,pathname)
+#tokenedcorp = tokenize_words(corp)
+#print(tokenedcorp)
+#onegram = ngrams(tokenedcorp, 1)
+#print(onegram)
+#tot = 0
+onegrammodel = ngramModel(corp, 1)
+print(onegrammodel)
+#twogram = ngrams(tokenedcorp, 2)
+#print(twogram)
+#threegram = ngrams(corp, 3)
+#print(threegram)
+# needed to make sure you perform to get all texts in example nltk.download()
+
+#nltk.draw.dispersion_plot('words', sorted(set(corp)))   
+#print(f"The original text has {len(corp)} words, and the tokenized text has {len(tokenedcorp)} words")
+
