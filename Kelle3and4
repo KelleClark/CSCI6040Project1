@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb  4 10:05:49 2020
+
+@author: kelleclark
+"""
+
+import os
+import re
+import string
+import numpy
+import matplotlib
+import sys
+import nltk
+from nltk.data import *
+from nltk.book import *
+from nltk.tokenize import word_tokenize, sent_tokenize
+
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+ 
+#from keras.models import Sequential
+#from keras.layers import Dense, Dropout, LSTM
+#from keras.utils import np_utils
+#from keras.callbacks import ModelCheckpoint
+
+# enumerate ngrams from Eisentein and CSCI6040 ipynb
+def ngrams(instring, n):
+    outset = {}
+    for i in range(len(instring) - n + 1):
+        g = ' '.join(instring[i:i+n])
+        outset.setdefault(g, 0)
+        outset[g] += 1
+    return outset
+
+def ngramModel(instring, n):
+   outset = tokenize_words(instring)
+   totalpossible = len(outset)
+   print (outset)
+   anoutcome = ngrams(outset,n)
+   print(anoutcome)
+   probmodel = anoutcome
+   test = 0
+   for keyword in anoutcome:
+        print(f"the word is {keyword} and it occurs {probmodel[keyword]} times")
+        probmodel[keyword] = (probmodel[keyword] / totalpossible)
+        test = test + probmodel[keyword]
+   print(probmodel)
+   print(f"The sum of all he probabiities need to be 1 and it is {test}")
+   return probmodel
+ 
+def ngramModel2(instring, n):
+   outset = tokenize_words(instring)
+   totalpossible = len(outset)
+   print (outset)
+   
+   anoutcome = ngrams(outset,n)
+   previousoutcome = ngrams(outset,n-1)
+   print(anoutcome)
+   print(previousoutcome)
+   
+   probmodel = anoutcome
+   test = 0
+   for keyword in anoutcome:
+        print(f"the word is {keyword} and it occurs {probmodel[keyword]} times")
+        listword = keyword.split()
+        print(listword[0])
+        prob1 = previousoutcome[listword[0]] / totalpossible
+        probmodel[keyword] = prob1 *(probmodel[keyword] / previousoutcome[listword[0]])
+        test = test + probmodel[keyword]
+   print(probmodel)
+   print(f"The sum of all he probabiities need to be 1 and it is {test}")
+   return probmodel  
+
+def ngramModel3(instring, n):
+   if n == 3:
+       outset = tokenize_words(instring)
+       totalpossible = len(outset)
+       print(outset)
+   
+       anoutcome = ngrams(outset,n)
+       print(anoutcome)
+       probmodel = anoutcome
+   
+       test = 0
+       previous1outcome = ngrams(outset,n-2)
+       previous2outcome = ngrams(outset,n-1)
+       print(previous1outcome)
+       print(previous2outcome)
+       for keyword in anoutcome:
+           print(f"the word is {keyword} and it occurs {probmodel[keyword]} times")
+           listword = keyword.split()
+           wordofinterest = listword[0]
+           print(wordofinterest)
+           prob1 = previous1outcome[wordofinterest]/ totalpossible
+           
+           wordofinterest = listword[0] + " " + listword[1]
+           print(wordofinterest)
+           prob2 = previous2outcome[wordofinterest]/previous1outcome[listword[0]] 
+           
+           wordofinterest = keyword
+           print(wordofinterest)
+           probmodel[keyword] = prob1 * prob2 * anoutcome[wordofinterest]/ previous2outcome[listword[0]+ " " + listword[1]]
+           test = test + probmodel[keyword]
+        
+   print(probmodel)
+   print(f"The sum of all he probabiities need to be 1 and it is {test}")
+   return probmodel  
+
+def ngramModel4(instring, n):
+   if n == 4:
+       outset = tokenize_words(instring)
+       totalpossible = len(outset)
+       print(outset)
+   
+       anoutcome = ngrams(outset,n)
+       print(anoutcome)
+       probmodel = anoutcome
+   
+       test = 0
+       previous1outcome = ngrams(outset,n-3)
+       previous2outcome = ngrams(outset,n-2)
+       previous3outcome = ngrams(outset,n-1)
+       print(previous1outcome)
+       print(previous2outcome)
+       for keyword in anoutcome:
+           print(f"the word is {keyword} and it occurs {probmodel[keyword]} times")
+           listword = keyword.split()
+           wordofinterest = listword[0]
+           print(wordofinterest)
+           prob1 = previous1outcome[wordofinterest]/ totalpossible
+           
+           wordofinterest = listword[0] + " " + listword[1]
+           print(wordofinterest)
+           prob2 = previous2outcome[wordofinterest]/previous1outcome[listword[0]] 
+           
+           wordofinterest = listword[0]+ " " + listword[1] + " " + listword[2]
+           prob3 = previous3outcome[wordofinterest]/previous2outcome[listword[0] + " " + listword[1]]
+           
+           wordofinterest = keyword
+           print(wordofinterest)
+           probmodel[keyword] = prob1 * prob2 * prob3 * anoutcome[wordofinterest]/ previous3outcome[listword[0]+ " " + listword[1] + listword[2]]
+           test = test + probmodel[keyword]
+        
+   print(probmodel)
+   print(f"The sum of all he probabiities need to be 1 and it is {test}")
+   return probmodel  
+  
+def oneCorpusFromFiles(folderpath):
+    textfiles = [f for f in os.listdir(folderpath) if '.txt' in f]
+    corpus = ' '
+    for f in textfiles:
+        try:
+            substring = ' '
+            with open(folderpath + '/'+ f) as filetext:
+                print(f"the language of file "+f+" is {nltk.language(filetext)}")
+                substring = substring.join(line.strip() for line in filetext)
+                filetext.close()
+                corpus = corpus + substring
+        except:
+            print("Error reading file:" + f)
+    return corpus
+        
+
+def tokenize_words(instring):
+    # lowercase and remove punctuation to standardize it
+    tokens = word_tokenize(instring)
+    tokens = [w.lower() for w in tokens]
+    #creating a regular expression for matching
+    re_punc = re.compile('[%s]' % re.escape(string.punctuation))
+    punct_free_words = [re_punc.sub('', w) for w in tokens]
+    words = [word for word in punct_free_words if word.isalpha()]
+    print(f"\n NLTK identified tokenized {len(words)} words.")
+
+    # instantiate the tokenizer to recognize words
+#    tokenizer = RegexpTokenizer(r'\w+')
+#    tokens = tokenizer.tokenize(instring)
+
+    # if the created token isn't in the stopwords of nltk, make it part of "filtered"
+    #filtered = filter(lambda token: token not in stopwords.words('english'), tokens)
+    #return " ".join(filtered)
+    return words
+
+
+def printoutcorpus(instring,folderpath):
+    try:
+        if len(instring) > 500: 
+            print(folderpath + "\n   First & last 50 characters of Corpus:\n" + instring[:50]+ " . . . "+ instring[-50:])
+        elif (len(instring) > 0):
+            print(folderpath+f"\n {instring[:]}")
+        else:
+            print(folderpath + "\n   Corpus is under 100 characters:\n'{corpus}'")
+    except:
+        print("The corpus does not exist.")
+
+
+#main 
+pathname = 'Test Data/long test data'
+corp = oneCorpusFromFiles(pathname)
+printoutcorpus(corp,pathname)
+tokenedcorp = tokenize_words(corp)
+print(tokenedcorp)
+onegram = ngrams(tokenedcorp, 1)
+print(onegram)
+tot = 0
+onegrammodel = ngramModel(corp, 1)
+twogrammodel = ngramModel2(corp, 2)
+threegrammodel = ngramModel3(corp, 3)
+
+#print(twogram)
+#threegram = ngrams(corp, 3)
+#print(threegram)
+# needed to make sure you perform to get all texts in example nltk.download()
+
+#nltk.draw.dispersion_plot('words', sorted(set(corp)))   
+#print(f"The original text has {len(corp)} words, and the tokenized text has {len(tokenedcorp)} words")
+
+
+
+
+
