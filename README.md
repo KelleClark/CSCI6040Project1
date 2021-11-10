@@ -105,7 +105,7 @@ To get a local copy up and running follow these simple steps.
 
 ## Quick Start
 ### Installation and Local Test Setup
-### It is recommended that you    .
+### It is recommended that you
 
 <div> 
   <ol>
@@ -119,6 +119,8 @@ To get a local copy up and running follow these simple steps.
    <li> open Anaconda Jupiter and then navigate to the directory and choose ipyn file
     </li>
   </ol>
+</div>
+ 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
