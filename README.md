@@ -26,7 +26,7 @@
 <p align="center">
  
 
-  <h3 align="center">NLP: Using Python to Generate and Analyze Language Models</h3>
+  <h3 align="center">NLP: Using Python to Generate Language Models</h3>
 
   <p align="center">
     project_description
@@ -73,7 +73,8 @@
 ### About the Project
 <p>The project uses Jupiter Notebook to create a dynamic python script illustrating the creation of 
   language models using ngrams, adjacent "blocks" of n tokens (words), from collections of learning
-  texts and a few different approaches to creating language models that can be used to classify a document.
+  texts and a few different approaches to creating language models that can be used to predict the next
+ word or words of an input text.
  
 
 <p>The models are built in steps according to the specifications:</p>
